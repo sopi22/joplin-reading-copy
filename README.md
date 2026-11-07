@@ -115,12 +115,12 @@ Reading copy of 'Family' -> D:\ProtonDrive\My files\Family notes
   All done.
 ```
 
-and from a run where nothing had changed:
+and from a later run right after one that had picked up Dad's new notes, so nothing had changed:
 
 ```
 Reading copy of 'Family' -> D:\ProtonDrive\My files\Family notes
-  47 notes: 0 new, 0 updated, 0 removed since last time
-  0 files made, 47 unchanged (left as they were), 0 old files removed
+  69 notes: 0 new, 0 updated, 0 removed since last time
+  0 files made, 69 unchanged (left as they were), 0 old files removed
   0 pictures, 0 attachments
   All done.
 ```
@@ -189,7 +189,7 @@ Joplin has to be open at that time. If it isn't, the run just says so and stops.
 - By hand on a real Joplin with a test notebook: pictures, checklists, tables, a
   sub-notebook, a link to a shared note, a link to a note that wasn't shared,
   then editing one note and deleting another. I checked the PDFs page by page.
-- In use for our family: 47 notes in 5 folders, shared through Proton Drive.
+- In use for our family: about 70 notes in 9 folders, shared through Proton Drive.
 
 ## Inspiration and related projects
 
