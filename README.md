@@ -24,6 +24,8 @@ and keeps that copy up to date.
   a USB stick. This README uses Proton Drive because it's end-to-end encrypted
   and lets you share a folder as *Viewer* (read-only) for free.
 - Never changes anything in Joplin. It only reads.
+- Can run by itself every day (for example at 9 pm) with one command that sets up
+  Windows Task Scheduler for you, see [part D](#d-update-the-copy-every-day-by-itself-task-scheduler).
 
 ## Tech stack
 
@@ -148,16 +150,63 @@ copied to an `_attachments` folder.
 You can read and download the PDFs, but not change them. If Proton sent an
 invitation email, open its link once first.
 
-### D. Optional: update the copy every day by itself
+### D. Update the copy every day by itself (Task Scheduler)
 
-In **Task Scheduler** → **Create Basic Task**: give it a name, pick **Daily** and
-a time, choose **Start a program**, program `pwsh.exe`, and as arguments:
+The `schedule` folder has two small scripts so you don't have to click through
+Task Scheduler yourself:
+
+- `register-daily-task.ps1` makes the Windows task (run it once).
+- `run-daily.ps1` is what the task runs every day. It runs the tool and saves
+  the result to a log file.
+
+**1. Make the task.** Open a normal PowerShell window (Start → type `PowerShell`,
+no admin needed) and paste this as **one line** (change the `-Output` path to your own):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "D:\Tools\joplin-reading-copy\schedule\register-daily-task.ps1" -Output "D:\ProtonDrive\My files\Family notes"
+```
+
+It should say:
 
 ```
--NoProfile -File "D:\Tools\joplin-reading-copy\joplin-reading-copy.ps1" -Output "D:\ProtonDrive\My files\Family notes"
+Task 'Family notes copy (Joplin to Proton)' created and started once as a test. It runs every day at 9pm from now on.
 ```
 
-Joplin has to be open at that time. If it isn't, the run just says so and stops.
+What this does:
+
+- Updates the copy **every day at 9 pm**. If the computer was off at 9 pm, it
+  runs as soon as the computer is on again.
+- Runs it **once right now** as a test.
+- **Joplin must be open** for it to work. If Joplin is closed, that day's run
+  just stops, and the log says so.
+
+> Tip: paste it as one line. When I first typed the long `Register-ScheduledTask`
+> command by hand, the paste broke it into two lines and the task wasn't made.
+> That's why it's a script now.
+
+**2. Check it worked.** After a minute:
+
+```powershell
+Get-Content "$env:LOCALAPPDATA\joplin-reading-copy\last-run.txt"
+```
+
+The last line should be `Exit code 0`. This file always shows the latest run.
+
+**Change the time:** run the same line again with `-At 7am` (or any time) at the
+end, or open **Task Scheduler** → **Task Scheduler Library** →
+**Family notes copy (Joplin to Proton)** → **Properties** → **Triggers** → **Edit**.
+
+**Other options:** `-Notebook "Name"` for a different notebook, `-TaskName "Name"`
+for a different task name.
+
+**Remove it:** in Task Scheduler right-click the task → **Delete**, or in PowerShell:
+
+```powershell
+Unregister-ScheduledTask -TaskName "Family notes copy (Joplin to Proton)"
+```
+
+**After updating the tool** (new `git pull` or ZIP), you don't need to make the
+task again, as long as the folder stays the same.
 
 ## What it never does
 
@@ -180,7 +229,7 @@ Joplin has to be open at that time. If it isn't, the run just says so and stops.
 
 ## How I tested it
 
-- 20 automatic tests with made-up notes (`tests/fixtures`), run on every push
+- 22 automatic tests with made-up notes (`tests/fixtures`), run on every push
   by GitHub Actions on Windows. To run them yourself in PowerShell 7:
   ```powershell
   Install-Module Pester -Scope CurrentUser -MinimumVersion 5.5 -SkipPublisherCheck -Force

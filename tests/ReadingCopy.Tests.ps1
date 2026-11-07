@@ -126,3 +126,15 @@ Describe 'New-NoteHtml' {
         $html | Should -Match 'reading copy'
     }
 }
+
+Describe 'Daily task scripts' {
+    It '<_> has no syntax errors and needs -Output' -ForEach @('run-daily.ps1', 'register-daily-task.ps1') {
+        $path = Join-Path $PSScriptRoot "..\schedule\$_"
+        $errors = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseFile($path, [ref]$null, [ref]$errors)
+        $errors.Count | Should -Be 0
+        $output = $ast.ParamBlock.Parameters | Where-Object { $_.Name.VariablePath.UserPath -eq 'Output' }
+        $output | Should -Not -BeNullOrEmpty
+        $output.Attributes.NamedArguments.ArgumentName | Should -Contain 'Mandatory'
+    }
+}
